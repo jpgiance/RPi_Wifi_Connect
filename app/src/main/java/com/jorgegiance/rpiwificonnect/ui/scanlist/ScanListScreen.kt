@@ -58,7 +58,11 @@ fun ScanListScreen(padding: PaddingValues, modifier: Modifier = Modifier) {
             contentPadding = PaddingValues(start = 20.dp, top = 10.dp, bottom = 10.dp, end = 20.dp)
         ) {
             items(10){ index ->
-                LazyItem("DEVICE $index", background_white)
+                LazyItem(
+                    name =  "DEVICE $index",
+                    itemBackgroundColor = background_white,
+                    onConnectButtonPressed ={}
+                )
 
             }
         }
@@ -71,7 +75,8 @@ fun ScanListScreen(padding: PaddingValues, modifier: Modifier = Modifier) {
 @Composable
 fun LazyItem(
     name: String,
-    itemBackgroundColor: Color
+    itemBackgroundColor: Color,
+    onConnectButtonPressed: ()-> Unit
 ) {
     Box(
         modifier = Modifier
@@ -104,7 +109,6 @@ fun LazyItem(
                     fontWeight = FontWeight.Black,
                     fontFamily = FontFamily(Font(R.font.jura_regular)),
                     maxLines = 1,
-
                     )
             }
 
@@ -114,7 +118,7 @@ fun LazyItem(
                 contentAlignment = Alignment.CenterEnd
             ) {
                 Button(
-                    onClick = { /* Handle button click */ },
+                    onClick = onConnectButtonPressed,
                     colors = ButtonDefaults.buttonColors(containerColor = button_orange),
                     shape = RoundedCornerShape(5.dp),
                     contentPadding = PaddingValues(start = 8.dp, end = 8.dp),
