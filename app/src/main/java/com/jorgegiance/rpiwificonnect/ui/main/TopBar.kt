@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -39,10 +40,9 @@ fun TopBar() {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp), // Add padding to the sides
+                    .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Spacer at the start for left alignment of button
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Button(
@@ -62,24 +62,23 @@ fun TopBar() {
                     Spacer(modifier = Modifier.width(5.dp)) // Add spacing between icon and text
                     Text(
                         text = "SCAN",
-                        color = text_grey, // Adjust color as needed
-                        fontSize = 20.sp, // Set text size to 16sp
+                        color = text_grey,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Bold ,
-//                        fontFamily = FontFamily(Font(R.font.jura_regular)), // Set the font to Jura
+                        fontFamily = FontFamily(Font(R.font.jura_regular)),
 
                     )
                 }
 
-                Spacer(modifier = Modifier.weight(1f)) // Spacer to push elements to the right
+                Spacer(modifier = Modifier.weight(1f))
 
-                // Text label for icon state
                 Text(
                     text = "not connected",
                     color = text_grey,
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Normal,
-//                    fontFamily = FontFamily(Font(R.font.jura_regular)),
-                    modifier = Modifier.padding(end = 8.dp) // Adjust padding as needed
+                    fontFamily = FontFamily(Font(R.font.jura_regular)),
+                    modifier = Modifier.padding(end = 1.dp)
                 )
 
                 // Right icon
@@ -87,11 +86,12 @@ fun TopBar() {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_circle),
                         contentDescription = "Favorite",
-                        tint = icon_grey
+                        tint = icon_grey,
+                        modifier = Modifier.size(15.dp)
                     )
                 }
 
-                Spacer(modifier = Modifier.width(8.dp)) // Spacer at the end for right alignment
+                Spacer(modifier = Modifier.width(8.dp))
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(background_white),
