@@ -11,14 +11,16 @@ import com.jorgegiance.rpiwificonnect.ui.scanlist.ScanListScreen
 import com.jorgegiance.rpiwificonnect.ui.theme.RPiWifiConnectTheme
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    onScanPressed: ()->Unit
+) {
 
     Scaffold (
-        topBar = { TopBar() },
+        topBar = { TopBar(onScanPressed = onScanPressed) },
         content = {padding ->
-            ConnectionDetailsScreen(
-                padding = padding
-            )
+//            ConnectionDetailsScreen( padding = padding )
+            ScanListScreen( padding = padding )
 
         }
     )
@@ -34,7 +36,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
 fun MainScreenPreview(modifier: Modifier = Modifier) {
     RPiWifiConnectTheme {
         Scaffold (
-            topBar = { TopBar() },
+            topBar = { TopBar(onScanPressed = {}) },
             content = {padding ->
                 ScanListScreen(
                     padding = padding

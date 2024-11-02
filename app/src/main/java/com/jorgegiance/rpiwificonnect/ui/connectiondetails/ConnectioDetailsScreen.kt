@@ -156,7 +156,7 @@ fun ConnectionDetailsScreen(padding: PaddingValues, modifier: Modifier = Modifie
 @Composable
 fun ConnectionDetailsScreenPreview(modifier: Modifier = Modifier) {
     Scaffold (
-        topBar = { TopBar() },
+        topBar = { TopBar(onScanPressed = {}) },
         content = {padding ->
             ConnectionDetailsScreen(
                 padding = padding

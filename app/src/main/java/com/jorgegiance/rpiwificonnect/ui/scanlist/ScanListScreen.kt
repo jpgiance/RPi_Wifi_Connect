@@ -1,5 +1,6 @@
 package com.jorgegiance.rpiwificonnect.ui.scanlist
 
+import android.bluetooth.BluetoothDevice
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,6 +21,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,7 +36,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.jorgegiance.rpiwificonnect.R
+import com.jorgegiance.rpiwificonnect.data.BleDevice
 import com.jorgegiance.rpiwificonnect.ui.main.TopBar
 import com.jorgegiance.rpiwificonnect.ui.theme.background_grey
 import com.jorgegiance.rpiwificonnect.ui.theme.background_white
@@ -42,7 +47,21 @@ import com.jorgegiance.rpiwificonnect.ui.theme.icon_grey
 import com.jorgegiance.rpiwificonnect.ui.theme.text_grey
 
 @Composable
-fun ScanListScreen(padding: PaddingValues, modifier: Modifier = Modifier) {
+fun ScanListScreen(
+    padding: PaddingValues,
+    modifier: Modifier = Modifier,
+    viewModel: ScanListViewModel = hiltViewModel()
+    ) {
+
+
+    val deviceList = viewModel.bleDevices.collectAsState()
+
+    LaunchedEffect(Unit){
+        viewModel.startBleScan()
+    }
+
+
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -57,9 +76,10 @@ fun ScanListScreen(padding: PaddingValues, modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.spacedBy(10.dp),
             contentPadding = PaddingValues(start = 20.dp, top = 10.dp, bottom = 10.dp, end = 20.dp)
         ) {
-            items(10){ index ->
+            items(deviceList.value.size){ index ->
+                val item = deviceList.value[index]
                 LazyItem(
-                    name =  "DEVICE $index",
+                    device =  item,
                     itemBackgroundColor = background_white,
                     onConnectButtonPressed ={}
                 )
@@ -74,7 +94,8 @@ fun ScanListScreen(padding: PaddingValues, modifier: Modifier = Modifier) {
 
 @Composable
 fun LazyItem(
-    name: String,
+    name: String = "",
+    device: BleDevice = BleDevice(name = "", address = ""),
     itemBackgroundColor: Color,
     onConnectButtonPressed: ()-> Unit
 ) {
@@ -103,7 +124,7 @@ fun LazyItem(
             ) {
                 Text(
                     modifier = Modifier.padding(5.dp),
-                    text = name,
+                    text = device.name,
                     color = text_grey,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Black,
@@ -146,7 +167,7 @@ fun LazyItem(
 private fun ScanListScreenPreview() {
 
     Scaffold (
-        topBar = { TopBar() },
+        topBar = { TopBar(onScanPressed = {}) },
         content = {padding ->
             ScanListScreen(
                 padding = padding

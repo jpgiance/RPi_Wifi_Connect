@@ -34,7 +34,9 @@ import com.jorgegiance.rpiwificonnect.ui.theme.text_grey
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar() {
+fun TopBar(
+    onScanPressed: ()->Unit
+) {
     TopAppBar(
         title = {
             Row(
@@ -46,7 +48,7 @@ fun TopBar() {
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Button(
-                    onClick = { /* Handle button click */ },
+                    onClick = onScanPressed,
                     colors = ButtonDefaults.buttonColors(containerColor = button_orange),
                     shape = RoundedCornerShape(5.dp),
                     contentPadding = PaddingValues(start = 8.dp, end = 8.dp),
@@ -101,5 +103,5 @@ fun TopBar() {
 @Preview
 @Composable
 private fun TopBarPreview() {
-    TopBar()
+    TopBar(onScanPressed = {})
 }
