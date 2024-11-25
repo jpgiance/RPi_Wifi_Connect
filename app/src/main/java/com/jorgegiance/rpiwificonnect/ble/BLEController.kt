@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
@@ -122,6 +123,10 @@ class BLEController (
             }
 
         }
+    }
+
+    private val gattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
+
     }
 
     private fun hasPermission(permission: String): Boolean{
