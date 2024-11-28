@@ -75,9 +75,7 @@ class MainActivity () : ComponentActivity() {
 //        enableEdgeToEdge()
         setContent {
             RPiWifiConnectTheme {
-                MainScreen(
-                    onScanPressed = { bleController.startBleScan() }
-                )
+                MainScreen()
 
             }
         }

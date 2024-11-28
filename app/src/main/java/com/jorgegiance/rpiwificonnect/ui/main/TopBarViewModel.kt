@@ -8,9 +8,13 @@ import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class MainScreenViewModel @Inject constructor(
+class TopBarViewModel @Inject constructor(
     private var bleController: BLEController
-):ViewModel() {
+): ViewModel(){
 
     val bleConnectionState: StateFlow<ConnectionState> = bleController.connectionState
+
+    fun startBleScan(){
+        bleController.startBleScan()
+    }
 }

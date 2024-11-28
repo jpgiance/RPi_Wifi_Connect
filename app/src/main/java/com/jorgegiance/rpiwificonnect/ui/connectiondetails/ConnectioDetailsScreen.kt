@@ -34,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.jorgegiance.rpiwificonnect.R
 import com.jorgegiance.rpiwificonnect.ui.dialogs.PasswordInputDialog
 import com.jorgegiance.rpiwificonnect.ui.main.TopBar
@@ -155,13 +156,5 @@ fun ConnectionDetailsScreen(padding: PaddingValues, modifier: Modifier = Modifie
 @Preview(device = Devices.PIXEL_6, showBackground = true, showSystemUi = true)
 @Composable
 fun ConnectionDetailsScreenPreview(modifier: Modifier = Modifier) {
-    Scaffold (
-        topBar = { TopBar(onScanPressed = {}) },
-        content = {padding ->
-            ConnectionDetailsScreen(
-                padding = padding
-            )
 
-        }
-    )
 }

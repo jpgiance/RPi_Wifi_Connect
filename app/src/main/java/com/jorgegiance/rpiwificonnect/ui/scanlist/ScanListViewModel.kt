@@ -2,6 +2,7 @@ package com.jorgegiance.rpiwificonnect.ui.scanlist
 
 import android.bluetooth.BluetoothDevice
 import androidx.lifecycle.ViewModel
+import com.jorgegiance.rpiwificonnect.Util.ConnectionState
 import com.jorgegiance.rpiwificonnect.ble.BLEController
 import com.jorgegiance.rpiwificonnect.data.BleDevice
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,6 +15,7 @@ class ScanListViewModel @Inject constructor(
 ):ViewModel() {
 
     val bleDevices: StateFlow<List<BleDevice>> = bleController.scannedDevices
+    val bleConnectionState: StateFlow<ConnectionState> = bleController.connectionState
 
 
     fun startBleScan(){
@@ -22,5 +24,9 @@ class ScanListViewModel @Inject constructor(
 
     fun stopBleScan(){
         bleController.stopBleScan()
+    }
+
+    fun connectTo(address: String){
+        bleController.connectTo(address)
     }
 }

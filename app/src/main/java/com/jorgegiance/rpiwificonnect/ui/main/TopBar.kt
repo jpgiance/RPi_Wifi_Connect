@@ -17,6 +17,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -26,17 +28,35 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.jorgegiance.rpiwificonnect.R
+import com.jorgegiance.rpiwificonnect.Util.ConnectionState
+import com.jorgegiance.rpiwificonnect.ble.BLEController
 import com.jorgegiance.rpiwificonnect.ui.theme.background_white
 import com.jorgegiance.rpiwificonnect.ui.theme.button_orange
+import com.jorgegiance.rpiwificonnect.ui.theme.icon_green
 import com.jorgegiance.rpiwificonnect.ui.theme.icon_grey
 import com.jorgegiance.rpiwificonnect.ui.theme.text_grey
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
-    onScanPressed: ()->Unit
+    viewModel: TopBarViewModel = hiltViewModel()
 ) {
+
+    val connectionState by viewModel.bleConnectionState.collectAsState(ConnectionState.DISCONNECTED)
+
+    var iconLabel = "not connected"
+    var connectionIconTint = icon_grey
+
+    if(connectionState == ConnectionState.CONNECTED){
+        connectionIconTint = icon_green
+        iconLabel = "connected"
+    }else{
+        connectionIconTint = icon_grey
+        iconLabel = "not connected"
+    }
+
     TopAppBar(
         title = {
             Row(
@@ -48,7 +68,7 @@ fun TopBar(
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Button(
-                    onClick = onScanPressed,
+                    onClick = { viewModel.startBleScan() },
                     colors = ButtonDefaults.buttonColors(containerColor = button_orange),
                     shape = RoundedCornerShape(5.dp),
                     contentPadding = PaddingValues(start = 8.dp, end = 8.dp),
@@ -75,7 +95,7 @@ fun TopBar(
                 Spacer(modifier = Modifier.weight(1f))
 
                 Text(
-                    text = "not connected",
+                    text = iconLabel,
                     color = text_grey,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Normal,
@@ -88,7 +108,7 @@ fun TopBar(
                     Icon(
                         painter = painterResource(id = R.drawable.icon_circle),
                         contentDescription = "Favorite",
-                        tint = icon_grey,
+                        tint = connectionIconTint,
                         modifier = Modifier.size(15.dp)
                     )
                 }
@@ -103,5 +123,5 @@ fun TopBar(
 @Preview
 @Composable
 private fun TopBarPreview() {
-    TopBar(onScanPressed = {})
+
 }

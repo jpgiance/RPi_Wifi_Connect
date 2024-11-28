@@ -81,7 +81,7 @@ fun ScanListScreen(
                 LazyItem(
                     device =  item,
                     itemBackgroundColor = background_white,
-                    onConnectButtonPressed ={}
+                    onConnectButtonPressed ={viewModel.connectTo(deviceList.value[index].address)}
                 )
 
             }
@@ -166,13 +166,5 @@ fun LazyItem(
 @Preview(device = Devices.PIXEL_6, showBackground = true, showSystemUi = true)
 private fun ScanListScreenPreview() {
 
-    Scaffold (
-        topBar = { TopBar(onScanPressed = {}) },
-        content = {padding ->
-            ScanListScreen(
-                padding = padding
-            )
 
-        }
-    )
 }
