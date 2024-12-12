@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -23,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,7 +56,7 @@ fun ScanListScreen(
     ) {
 
 
-    val deviceList = viewModel.bleDevices.collectAsState()
+    val deviceList by viewModel.bleDevices.collectAsState()
 
     LaunchedEffect(Unit){
         viewModel.startBleScan()
@@ -76,12 +78,12 @@ fun ScanListScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             contentPadding = PaddingValues(start = 20.dp, top = 10.dp, bottom = 10.dp, end = 20.dp)
         ) {
-            items(deviceList.value.size){ index ->
-                val item = deviceList.value[index]
+            items(deviceList.filter { it.name != "NO NAME" }){ item ->
+
                 LazyItem(
                     device =  item,
                     itemBackgroundColor = background_white,
-                    onConnectButtonPressed ={viewModel.connectTo(deviceList.value[index].address)}
+                    onConnectButtonPressed ={viewModel.connectTo(item.address)}
                 )
 
             }

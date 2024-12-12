@@ -36,6 +36,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
+import java.util.Locale
 import java.util.UUID
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
@@ -251,12 +254,26 @@ class BLEController (
                 txCharacteristic = mService.getCharacteristic(TX_CHARACTERISTIC_UUID)
                 rxCharacteristic = mService.getCharacteristic(RX_CHARACTERISTIC_UUID)
 
-                setNotify(txCharacteristic, true)
+
             }
 
             taskQueue.clear()
             taskQueueBusy.set(false)
 
+            setNotify(txCharacteristic, true)
+
+            writeString("Hello popo")
+
+        }
+
+        override fun onCharacteristicChanged(
+            gatt: BluetoothGatt,
+            characteristic: BluetoothGattCharacteristic,
+            value: ByteArray
+        ) {
+            super.onCharacteristicChanged(gatt, characteristic, value)
+
+            Log.e( TAG, " onCharacteristicChanged " + characteristic.uuid )
         }
 
         override fun onCharacteristicRead(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, value: ByteArray, status: Int) {
@@ -273,11 +290,13 @@ class BLEController (
 
         override fun onDescriptorRead(gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int, value: ByteArray) {
             super.onDescriptorRead(gatt, descriptor, status, value)
+            Log.e( TAG, " onDescriptorRead " + (status == BluetoothGatt.GATT_SUCCESS) )
         }
 
         override fun onDescriptorWrite(gatt: BluetoothGatt?, descriptor: BluetoothGattDescriptor?, status: Int) {
             super.onDescriptorWrite(gatt, descriptor, status)
 
+            Log.e( TAG, " onDescriptorWrite " + (status == BluetoothGatt.GATT_SUCCESS) )
 
             // Do some checks first
             descriptor?.let { _descriptor->
@@ -333,8 +352,8 @@ class BLEController (
                  Log.e(TAG, "onMtuChanged: Discovering Services Failed !!!!!!!!" )
              }
 
-            gatt?.connect()
-            device?.createBond()
+
+
 
 
 
@@ -415,7 +434,7 @@ class BLEController (
                     }
                 }
 
-            }?:{
+            }?:run{
                 Log.e(TAG, "ERROR: Gatt is 'null', can not complete read request")
                 disconnectDevice()
             }
@@ -456,12 +475,121 @@ class BLEController (
                     Log.e(TAG, String.format("reading characteristic <%s>", characteristic.uuid))
                 }
 
-            }?:{
+            }?:run{
                 Log.e(TAG, "ERROR: Gatt is 'null', can not complete read request")
                 disconnectDevice()
             }
 
         }
+
+
+    }
+
+    private fun writeCharacteristic(data: ByteArray, characteristic: BluetoothGattCharacteristic ): Boolean {
+        return writeCharacteristic( data,  BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE, characteristic )
+    }
+
+    private fun writeCharacteristic(data: ByteArray, writeType: Int, characteristic: BluetoothGattCharacteristic ): Boolean {
+        // Check if this characteristic actually supports this writeType
+        Log.e( TAG,"characteristic.properties = " + characteristic.properties)
+            val writeProperty = when (writeType) {
+            BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT -> BluetoothGattCharacteristic.PROPERTY_WRITE
+            BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE -> BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
+            BluetoothGattCharacteristic.WRITE_TYPE_SIGNED -> BluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE
+            else -> 0
+        }
+        if ((characteristic.properties and writeProperty) == 0) {
+            Log.e( TAG, String.format( Locale.ENGLISH, "ERROR: Characteristic <%s> does not support writeType ", characteristic.uuid ) )
+//            return false
+        }
+
+
+
+
+
+
+
+        // Enqueue the write command
+//        val writeRunnable = Runnable {
+//            characteristic.setValue(data)
+//            characteristic.writeType = writeType
+//            if (!connectedGatt!!.writeCharacteristic(characteristic)) {
+//                Log.e(TAG, "writeRun: false")
+//                Log.e(
+//                    TAG, String.format(
+//                        "ERROR: writeCharacteristic failed for characteristic: %s  and data: %s",
+//                        characteristic.uuid,
+//                        String(
+//                            data!!, StandardCharsets.US_ASCII
+//                        )
+//                    )
+//                )
+//                completedCommand()
+//            } else {
+//                completedCommand()
+//                nrTries++
+//            }
+//        }
+//
+//        val result: Boolean = commandQueue.add(writeRunnable)
+//
+//        if (result) {
+//            nextCommand()
+//        } else {
+//            Log.e(TAG, "ERROR: Could not enqueue write characteristic command")
+//        }
+//
+//        return result
+
+
+
+
+
+
+
+
+
+        return enqueueTask {
+
+            connectedGatt?.let { gatt ->
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+
+                    if (gatt.writeCharacteristic(characteristic, data, writeType) != BluetoothStatusCodes.SUCCESS) {
+                        Log.e(TAG, "writeRun: false")
+                        Log.e( TAG, String.format( "ERROR: writeCharacteristic failed for characteristic: %s  and data: %s", characteristic.uuid, String( data!!, StandardCharsets.US_ASCII )  ) )
+                        completedTask()
+                    } else {
+                        completedTask()
+                    }
+
+                } else {
+
+                    characteristic.setValue(data)
+                    characteristic.writeType = writeType
+                    if (!gatt.writeCharacteristic(characteristic)) {
+                        Log.e(TAG, "writeRun: false")
+                        Log.e( TAG, String.format( "ERROR: writeCharacteristic failed for characteristic: %s  and data: %s", characteristic.uuid, String(data, StandardCharsets.US_ASCII ) ) )
+                        completedTask()
+                    } else {
+                        completedTask()
+                    }
+
+                }
+
+
+
+            }?:run{
+                Log.e(TAG, "ERROR: Gatt is 'null', can not complete write request")
+                disconnectDevice()
+            }
+        }
+
+
+
+
+
+
 
 
     }
@@ -511,8 +639,9 @@ class BLEController (
     }
 
     private fun enqueueTask(task: () -> Unit): Boolean {
+        Log.e(TAG, "enqueueTask: *********" )
         val result = taskQueue.add(task) // Add the task to the queue
-        if (taskQueueBusy.get()) {
+        if (!taskQueueBusy.get()) {
             nextTask() // Start processing if not busy
         }
 
@@ -548,6 +677,22 @@ class BLEController (
 
 
 
+    }
+
+    fun writeBLEBytes(data: ByteArray) {
+        try {
+            rxCharacteristic?.let { writeCharacteristic(data, it) }
+        } catch (e: java.lang.Exception) {
+            Log.e(TAG, "writeBLEBytes: " + e.message)
+        }
+    }
+
+    fun writeString(message: String){
+        try {
+            rxCharacteristic?.let { writeCharacteristic(message.toByteArray( Charsets.US_ASCII), it) }
+        } catch (e: java.lang.Exception) {
+            Log.e(TAG, "writeBLEBytes: " + e.message)
+        }
     }
 
     companion object{
